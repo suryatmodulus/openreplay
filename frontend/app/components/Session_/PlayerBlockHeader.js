@@ -9,6 +9,7 @@ import { connectPlayer, toggleEvents } from 'Player';
 import SessionMetaList from 'Shared/SessionItem/SessionMetaList';
 import UserCard from './EventsBlock/UserCard';
 import Tabs from 'Components/Session/Tabs';
+import { screenRecorder } from './recorder';
 
 import stl from './playerBlockHeader.module.css';
 import AssistActions from '../Assist/components/AssistActions';
@@ -54,6 +55,7 @@ const ASSIST_ROUTE = assistRoute();
 export default class PlayerBlockHeader extends React.PureComponent {
     state = {
         hideBack: false,
+        isRecording: false,
     };
 
     componentDidMount() {
@@ -85,6 +87,21 @@ export default class PlayerBlockHeader extends React.PureComponent {
         const { session } = this.props;
         this.props.toggleFavorite(session.sessionId);
     };
+
+    toggleRecording = () => {
+        console.log(this.state.isRecording)
+        if (this.state.isRecording) {
+            window.stopRecording();
+            console.log('??')
+            this.setState({
+                isRecording: false,
+            })
+        } else {
+            const stop = screenRecorder();
+            window.stopRecording = stop;
+            this.setState({ isRecording: true });
+        }
+    }
 
     render() {
         const {
@@ -144,6 +161,9 @@ export default class PlayerBlockHeader extends React.PureComponent {
 
                         {isAssist && <AssistActions userId={userId} />}
                     </div>
+                </div>
+                <div onClick={this.toggleRecording} className='p-3'>
+                    <div className="p-1 bg-tealx">{this.state.isRecording ? 'Stop' : 'Record'}</div>
                 </div>
                 {!isAssist && (
                     <div className="relative border-l" style={{ minWidth: '270px' }}>

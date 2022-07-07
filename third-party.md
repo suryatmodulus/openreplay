@@ -1,4 +1,4 @@
-## Licenses (as of June 30, 2022)
+## Licenses (as of July 7, 2022)
 
 Below is the list of dependencies used in OpenReplay software. Licenses may change between versions, so please keep this up to date with every new library you use.
 
@@ -65,7 +65,6 @@ Below is the list of dependencies used in OpenReplay software. Licenses may chan
 | moment-range | Unlicense | JavaScript |
 | optimal-select | MIT | JavaScript |
 | rc-time-picker | MIT | JavaScript |
-| snabbdom | MIT | JavaScript |
 | react | MIT | JavaScript |
 | react-circular-progressbar | MIT | JavaScript |
 | react-codemirror2 | MIT | JavaScript |

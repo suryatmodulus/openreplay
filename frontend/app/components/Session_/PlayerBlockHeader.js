@@ -88,17 +88,16 @@ export default class PlayerBlockHeader extends React.PureComponent {
         this.props.toggleFavorite(session.sessionId);
     };
 
-    toggleRecording = () => {
+    toggleRecording = async () => {
         console.log(this.state.isRecording)
         if (this.state.isRecording) {
             window.stopRecording();
-            console.log('??')
             this.setState({
                 isRecording: false,
             })
         } else {
-            const stop = screenRecorder();
-            window.stopRecording = stop;
+            const stop = await screenRecorder();
+            window.stopRecording = () => stop();
             this.setState({ isRecording: true });
         }
     }

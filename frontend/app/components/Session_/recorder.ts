@@ -1,4 +1,5 @@
 function createRecorder (stream: MediaStream, mimeType: string) {
+    let ended = false;
     let recordedChunks: BlobPart[] = []; 
     const SAVE_INTERVAL_MS = 200;
     const mediaRecorder = new MediaRecorder(stream);
@@ -8,10 +9,23 @@ function createRecorder (stream: MediaStream, mimeType: string) {
         recordedChunks.push(e.data);
         }  
     };
-    mediaRecorder.onstop = function () {
+
+    function onEnd() {
+        if (ended) return;
+
+        ended = true;
         saveFile(recordedChunks, mimeType);
         recordedChunks = [];
     };
+
+    // sometimes we get race condition or the onstop won't trigger at all,
+    // this is why we have to make it twice to make sure that stream is saved
+    // plus we want to be able to handle both, native and custom button clicks
+    mediaRecorder.stream.getTracks().forEach(track => track.onended = onEnd);
+    mediaRecorder.onstop = () => {
+        onEnd();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
     mediaRecorder.start(SAVE_INTERVAL_MS);
 
     return mediaRecorder;
@@ -36,12 +50,24 @@ function saveFile(recordedChunks: BlobPart[], mimeType: string) {
 async function recordScreen() {
     return await navigator.mediaDevices.getDisplayMedia({
         audio: true, 
-        video: true,
-        // not supported now
-        // video: { advanced: [{ frameRate: 30 }]},
+        video: { frameRate: 30 },
+        // potential chrome hack
+        // @ts-ignore
+        preferCurrentTab: true,
     });
 };
 
+/**
+ * Creates a screen recorder that sends the media stream to MediaRecorder
+ * which then saves the stream to a file.
+ * 
+ * Supported Browsers: 
+ * 
+ *      Windows: Chrome v91+, Edge v90+ - FULL SUPPORT;
+ *      *Nix: Chrome v91+, Edge v90+ - LIMITED SUPPORT - (audio only captured from current tab)
+ * 
+ * @returns  a promise that resolves to a function that stops the recording
+ */
 export async function screenRecorder() {
     try {
         const stream = await recordScreen();

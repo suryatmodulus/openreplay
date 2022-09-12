@@ -129,7 +129,7 @@ export default class App {
     this.ticker.attach(() => this.commit())
     this.debug = new Logger(this.options.__debug__)
     this.notify = new Logger(this.options.verbose ? LogLevel.Warnings : LogLevel.Silent)
-    this.session = new Session()
+    this.session = new Session(this, this.options)
     this.session.attachUpdateCallback(({ userID, metadata }) => {
       if (userID != null) {
         // TODO: nullable userID
@@ -256,7 +256,13 @@ export default class App {
     const reqVer = version.split(/[.-]/)
     const ver = this.version.split(/[.-]/)
     for (let i = 0; i < 3; i++) {
-      if (Number(ver[i]) < Number(reqVer[i]) || isNaN(Number(ver[i])) || isNaN(Number(reqVer[i]))) {
+      if (isNaN(Number(ver[i])) || isNaN(Number(reqVer[i]))) {
+        return false
+      }
+      if (Number(ver[i]) > Number(reqVer[i])) {
+        return true
+      }
+      if (Number(ver[i]) < Number(reqVer[i])) {
         return false
       }
     }

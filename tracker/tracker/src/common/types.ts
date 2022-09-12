@@ -6,5 +6,5 @@ export interface Writer {
 }
 
 export interface Message {
-  encode(w: Writer): boolean;
+  encode(w: Writer): boolean
 }

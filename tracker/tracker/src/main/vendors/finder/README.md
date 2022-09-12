@@ -10,10 +10,10 @@
 
 ## Features
 
-* Generates **shortest** selectors
-* **Unique** selectors per page
-* Stable and **robust** selectors
-* **2.1 kB** gzip and minify size
+- Generates **shortest** selectors
+- **Unique** selectors per page
+- Stable and **robust** selectors
+- **2.1 kB** gzip and minify size
 
 ## Install
 
@@ -25,18 +25,18 @@ Finder can be used via modules:
 
 ```html
 <script type="module">
-  import {finder} from 'https://medv.io/finder/finder.js'
+  import { finder } from 'https://medv.io/finder/finder.js'
 </script>
 ```
 
-## Usage 
+## Usage
 
 ```js
-import {finder} from '@medv/finder'
+import { finder } from '@medv/finder'
 
-document.addEventListener('click', event => {
+document.addEventListener('click', (event) => {
   const selector = finder(event.target)
-  console.log(selector)  
+  console.log(selector)
 })
 ```
 
@@ -75,17 +75,17 @@ Check if this ID can be used. For example you can restrict using framework speci
 
 ```js
 const selector = finder(event.target, {
-  idName: name => !name.startsWith('ember')
+  idName: (name) => !name.startsWith('ember'),
 })
 ```
 
 #### `className: (name: string) => boolean`
 
-Check if this class name can be used. For example you can restrict using _is-*_ class names:
+Check if this class name can be used. For example you can restrict using _is-\*_ class names:
 
 ```js
 const selector = finder(event.target, {
-  className: name => !name.startsWith('is-')
+  className: (name) => !name.startsWith('is-'),
 })
 ```
 
@@ -99,27 +99,27 @@ Check if attr name can be used.
 
 #### `seedMinLength: number`
 
-Minimum length of levels in fining selector. Starts from `1`. 
-For more robust selectors give this param value around 4-5 depending on depth of you DOM tree. 
+Minimum length of levels in fining selector. Starts from `1`.
+For more robust selectors give this param value around 4-5 depending on depth of you DOM tree.
 If `finder` hits `root` this param is ignored.
 
 #### `optimizedMinLength: number`
 
-Minimum length for optimising selector. Starts from `2`. 
+Minimum length for optimising selector. Starts from `2`.
 For example selector `body > div > div > p` can be optimized to `body p`.
 
 #### `threshold: number`
 
-Max number of selectors to check before falling into `nth-child` usage. 
-Checking for uniqueness of selector is very costs operation, if you have DOM tree depth of 5, with 5 classes on each level, 
-that gives you more than 3k selectors to check. 
+Max number of selectors to check before falling into `nth-child` usage.
+Checking for uniqueness of selector is very costs operation, if you have DOM tree depth of 5, with 5 classes on each level,
+that gives you more than 3k selectors to check.
 `finder` uses two step approach so it's reaching this threshold in some cases twice.
-Default `1000` is good enough in most cases.  
+Default `1000` is good enough in most cases.
 
 #### `maxNumberOfTries: number`
 
 Max number of tries when we do the optimization. It is a trade-off between optimization and efficiency.
-Default `10_000` is good enough in most cases.  
+Default `10_000` is good enough in most cases.
 
 ### Google Chrome Extension
 

@@ -14,14 +14,15 @@
   "type": "module",
   "main": "./lib/index.js",
   "scripts": {
-    "lint": "eslint src --ext .ts,.js --fix --quiet",
+    "lint": "eslint src --ext .ts,.js --fix",
     "clean": "rm -Rf build && rm -Rf lib && rm -Rf cjs",
     "tscRun": "tsc -b src/main && tsc -b src/webworker && tsc --project src/main/tsconfig-cjs.json",
     "rollup": "rollup --config rollup.config.js",
     "compile": "node --experimental-modules --experimental-json-modules scripts/compile.cjs",
     "build": "npm run clean && npm run tscRun && npm run rollup && npm run compile",
     "prepare": "cd ../../ && husky install tracker/.husky/",
-    "lint-front": "lint-staged"
+    "lint-front": "lint-staged",
+    "pret": "prettier src --write"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",

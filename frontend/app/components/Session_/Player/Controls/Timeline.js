@@ -9,7 +9,7 @@ import CustomDragLayer from './CustomDragLayer';
 import { debounce } from 'App/utils';
 import TooltipContainer from './components/TooltipContainer';
 
-const BOUNDRY = 0;
+const BOUNDRY = 8;
 
 function getTimelinePosition(value, scale) {
   const pos = value * scale;
@@ -71,6 +71,7 @@ export default class Timeline extends React.PureComponent {
   };
 
   jumpToTime = (e) => {
+    e.stopPropagation()
     if (this.props.live && !this.props.liveTimeTravel) {
       this.loadAndSeek(e);
     } else {
@@ -80,7 +81,7 @@ export default class Timeline extends React.PureComponent {
 
   getTime = (e, customEndTime) => {
     const { endTime } = this.props;
-    const p = e.nativeEvent.offsetX / e.target.offsetWidth;
+    const p = (e.nativeEvent.pageX - 10) / this.progressRef.current.offsetWidth;
     const targetTime = customEndTime || endTime;
     const time = Math.max(Math.round(p * targetTime), 0);
 
@@ -181,8 +182,7 @@ export default class Timeline extends React.PureComponent {
           top: '-4px',
           zIndex: 100,
           padding: `0 ${BOUNDRY}px`,
-          maxWidth: 'calc(100% - 1rem)',
-          left: '0.5rem',
+          maxWidth: '100%',
         }}
       >
         <div

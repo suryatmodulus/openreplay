@@ -1,7 +1,7 @@
 import logging
 
 import clickhouse_driver
-from decouple import config
+from decouple import config, UndefinedValueError
 
 logging.basicConfig(level=config("LOGLEVEL", default=logging.INFO))
 
@@ -18,9 +18,10 @@ if config('ch_receive_timeout', cast=int, default=-1) > 0:
 class ClickHouseClient:
     __client = None
 
-    def __init__(self):
+    def __init__(self, database = 'default'):
+
         self.__client = clickhouse_driver.Client(host=config("ch_host"),
-                                                 database="default",
+                                                 database=database,
                                                  port=config("ch_port", cast=int),
                                                  settings=settings) \
             if self.__client is None else self.__client

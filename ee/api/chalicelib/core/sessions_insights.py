@@ -26,7 +26,7 @@ def query_requests_by_period(project_id, start_time=(datetime.now()-timedelta(da
 SELECT T1.hh, count(T2.session_id) as sessions, avg(T2.success) as success_rate, T2.url_host as names, groupUniqArray(T2.url_path) as sources, avg(T2.duration) as avg_duration FROM (SELECT arrayJoin(arrayMap(x -> toDateTime(x), range(toUInt32(start), toUInt32(end), {steps}))) as hh) AS T1
     LEFT JOIN (SELECT session_id, url_host, url_path, success, message, duration, {function.format('datetime')} as dtime FROM events WHERE project_id = {project_id} AND event_type = 'REQUEST') AS T2 ON T2.dtime = T1.hh GROUP BY T1.hh, T2.url_host ORDER BY T1.hh DESC;
     """
-    with ch_client.ClickHouseClient() as conn:
+    with ch_client.ClickHouseClient(database='experimental') as conn:
         res = conn.execute(query=query)
     df = pd.DataFrame(res)
     del res
@@ -62,7 +62,7 @@ def query_most_errors_by_period(project_id, start_time=(datetime.now()-timedelta
 SELECT T1.hh, count(T2.session_id) as sessions, T2.name as names, groupUniqArray(T2.source) as sources FROM (SELECT arrayJoin(arrayMap(x -> toDateTime(x), range(toUInt32(start), toUInt32(end), {steps}))) as hh) AS T1
     LEFT JOIN (SELECT session_id, name, source, message, {function.format('datetime')} as dtime FROM events WHERE project_id = {project_id} AND event_type = 'ERROR') AS T2 ON T2.dtime = T1.hh GROUP BY T1.hh, T2.name ORDER BY T1.hh DESC;
     """
-    with ch_client.ClickHouseClient() as conn:
+    with ch_client.ClickHouseClient(database='experimental') as conn:
         res = conn.execute(query=query)
     df = pd.DataFrame(res)
     del res
@@ -95,7 +95,7 @@ def query_cpu_memory_by_period(project_id, start_time=(datetime.now()-timedelta(
   {function.format(f"toDateTime64('{end_time}', 0)")} as end
 SELECT T1.hh, count(T2.session_id) as sessions, avg(T2.avg_cpu) as cpu_used, avg(T2.avg_used_js_heap_size) as memory_used, T2.url_host as names, groupUniqArray(T2.url_path) as sources FROM (SELECT arrayJoin(arrayMap(x -> toDateTime(x), range(toUInt32(start), toUInt32(end), {steps}))) as hh) AS T1
     LEFT JOIN (SELECT session_id, url_host, url_path, avg_used_js_heap_size, avg_cpu, {function.format('datetime')} as dtime FROM events WHERE project_id = {project_id} AND event_type = 'PERFORMANCE') AS T2 ON T2.dtime = T1.hh GROUP BY T1.hh, T2.url_host ORDER BY T1.hh DESC;"""
-    with ch_client.ClickHouseClient() as conn:
+    with ch_client.ClickHouseClient(database='experimental') as conn:
         res = conn.execute(query=query)
     df = pd.DataFrame(res)
     del res

@@ -46,6 +46,12 @@ class EditMemberSchema(EditUserSchema):
     roleId: int = Field(...)
 
 
+class GetInsightsPayloadSchema(BaseModel):
+    startDate: int = Field(TimeUTC.now(delta_days=-1))
+    endDate: int = Field(TimeUTC.now())
+    timestep: str = Field(...)
+
+
 class TrailSearchPayloadSchema(schemas._PaginatedSchema):
     limit: int = Field(default=200, gt=0)
     startDate: int = Field(default=TimeUTC.now(-7))

@@ -18,7 +18,7 @@ export default class CallWindow {
 	private controlsContainer: HTMLElement | null = null
 	private remoteVideoOn = false
 	private localVideoOn = false
-
+	private onToggleVideo: (args: any) => void
 	private tsInterval: ReturnType<typeof setInterval>
 
 	private readonly load: Promise<void>
@@ -272,6 +272,7 @@ export default class CallWindow {
 			stream
 				.toggleVideo()
 				.then((enabled) => {
+					this.onToggleVideo?.({ streamId: stream.stream.id, enabled, })
 					this.toggleVideoUI(enabled)
 					this.load
 						.then(() => {
@@ -325,6 +326,10 @@ export default class CallWindow {
 			this.remoteControlContainer.style.display = 'none'
 		}
 		this.adjustIframeSize()
+	}
+
+	public setVideoCallback(cb) {
+		this.onToggleVideo = cb
 	}
 
 	remove() {

@@ -29,7 +29,7 @@ function VideoContainer({ stream, muted = false, height = 280, setRemoteEnabled 
           (!settings.frameRate && !settings.width)
         : true;
       const shouldBeEnabled = !isDummyVideoTrack;
-      console.log(stream.getVideoTracks());
+
       if (isEnabled !== shouldBeEnabled) {
         setEnabled(shouldBeEnabled);
         setRemoteEnabled?.(shouldBeEnabled);

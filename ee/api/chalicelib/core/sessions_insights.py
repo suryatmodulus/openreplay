@@ -107,6 +107,55 @@ SELECT T1.hh, count(T2.session_id) as sessions, avg(T2.avg_cpu) as cpu_used, avg
             'memory_increase': (df1['memory_used'].mean() - _tmp)/_tmp}
 
 
+def query_click_rage_by_period(project_id, start_time=(datetime.now()-timedelta(days=1)).strftime('%Y-%m-%d'),
+                        end_time=datetime.now().strftime('%Y-%m-%d'), time_step=3600):
+    function, steps = __handle_timestep(time_step)
+    click_rage_condition = "name = 'click_rage'"
+    query = f"""WITH
+      {function.format(f"toDateTime64('{start_time}', 0)")} as start,
+      {function.format(f"toDateTime64('{end_time}', 0)")} as end
+    SELECT T1.hh, count(T2.session_id) as sessions, T2.url_host as names, groupUniqArray(T2.url_path) as sources FROM (SELECT arrayJoin(arrayMap(x -> toDateTime(x), range(toUInt32(start), toUInt32(end), {steps}))) as hh) AS T1
+        LEFT JOIN (SELECT session_id, url_host, url_path, {function.format('datetime')} as dtime FROM events WHERE project_id = {project_id} AND event_type = 'ISSUE' AND {click_rage_condition}) AS T2 ON T2.dtime = T1.hh GROUP BY T1.hh, T2.url_host ORDER BY T1.hh DESC;"""
+    with ch_client.ClickHouseClient(database='experimental') as conn:
+        res = conn.execute(query=query)
+    df = pd.DataFrame(res)
+    del res
+    first_ts, second_ts = df['hh'].unique()[:2]
+    df1 = df[df['hh'] == first_ts]
+    df2 = df[df['hh'] == second_ts]
+
+    this_period_names = df1['names'].unique()
+    last_period_names = df2['names'].unique()
+
+    common_names = list()
+    new_names = list()
+    for n in this_period_names:
+        if n in last_period_names:
+            common_names.append(n)
+        else:
+            new_names.append(n)
+
+    raged_increment = dict()
+    for n in common_names:
+        if n is None:
+            continue
+        _tmp = df2['sessions'][n].sum()
+        raged_increment[n] = (df1['sessions'][n].sum()-_tmp)/_tmp
+
+    return df1['sessions'].sum()-df2['sessions'].sum(), new_names,\
+           pd.DataFrame(raged_increment.items(), columns=['url', 'increment']), df
+
+
+# def query_click_rage_by_period2(project_id, start_time=(datetime.now()-timedelta(days=1)).strftime('%Y-%m-%d'),
+#                         end_time=datetime.now().strftime('%Y-%m-%d'), time_step=3600):
+#     function, steps = __handle_timestep(time_step)
+#     query = f"""WITH
+#   {function.format(f"toDateTime64('{start_time}', 0)")} as start,
+#   {function.format(f"toDateTime64('{end_time}', 0)")} as end
+# SELECT T1.hh, count(T2.t) as n_events, count(DISTINCT T2.issue_id) as distict_events FROM (SELECT arrayJoin(arrayMap(x -> toDateTime(x), range(toUInt32(start), toUInt32(end), {steps}))) as hh) AS T1
+#     LEFT JOIN (SELECT issue_id, {function.format('_timestamp')} as dtime, _timestamp as t FROM issues WHERE project_id = {project_id} AND type = 'click_rage') AS T2 ON T2.dtime = T1.hh GROUP BY T1.hh ORDER BY T1.hh DESC;"""
+
+
 if __name__ == '__main__':
     # configs
     start = '2022-04-19'

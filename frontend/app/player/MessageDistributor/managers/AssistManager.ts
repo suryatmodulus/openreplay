@@ -72,45 +72,10 @@ export const INITIAL_STATE: State = {
 
 const MAX_RECONNECTION_COUNT = 4;
 
-let handlers = Symbol('handlers');
-
-interface VideoFeeds {
-  [key: string]: boolean
-}
-
-type ProxyResult<T extends {}> = T & {
-  observe: (handler: (args: any) => any) => void
-  [key: typeof handlers]: Function[]
-}
-
-function makeObservable<T extends {}>(target: T): ProxyResult<T> {
-  // @ts-ignore
-  target[handlers] = [];
-
-  // @ts-ignore
-  target.observe = function(handler) {
-    this[handlers].push(handler);
-  };
-
-  // @ts-ignore
-  return new Proxy(target, {
-    set(target, property, value) {
-      // @ts-ignore
-      let success = Reflect.set(...arguments);
-      if (success) {
-        // @ts-ignore
-        target[handlers].forEach(handler => handler(property, value));
-      }
-      return success;
-    }
-  });
-}
-
-export const videoFeeds = makeObservable<VideoFeeds>({})
-
 export default class AssistManager {
   private timeTravelJump = false;
   private jumped = false;
+  private videoStreams: Record<string, MediaStreamTrack> = {}
 
   constructor(private session: any, private md: MessageDistributor, private config: any) {}
 
@@ -249,7 +214,7 @@ export default class AssistManager {
         }
       })
       socket.on('videofeed', ({ streamId, enabled }) => {
-        videoFeeds[streamId] = enabled
+        this.videoStreams[streamId].enabled = enabled
       })
       socket.on('SESSION_DISCONNECTED', e => {
         waitingForMessages = true
@@ -414,7 +379,7 @@ export default class AssistManager {
           call.on('stream', stream => {
             this.callArgs && this.callArgs.onStream(stream)
             stream.getVideoTracks().forEach(track => {
-              videoFeeds[track.id] = track.enabled
+              this.videoStreams[track.id] = track
             })
           });
           // call.peerConnection.addEventListener("track", e => console.log('newtrack',e.track))
@@ -546,8 +511,9 @@ export default class AssistManager {
 
       call.on('stream', stream => {
         getState().calling !== CallingState.OnCall && update({ calling: CallingState.OnCall })
+
         stream.getVideoTracks().forEach(track => {
-          videoFeeds[track.id] = track.enabled
+          this.videoStreams[track.id] = track
         })
         this.callArgs && this.callArgs.onStream(stream)
       });

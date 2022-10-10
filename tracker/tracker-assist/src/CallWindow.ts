@@ -146,8 +146,7 @@ export default class CallWindow {
 					let enabled = false
 					this.checkRemoteVideoInterval = setInterval(() => {
 						const settings = this.remoteVideo?.getSettings()
-						const isDummyVideoTrack =
-							!!settings && !this.remoteVideo.enabled && (settings.width === 2 || settings.frameRate === 0)
+						const isDummyVideoTrack = !this.remoteVideo.enabled || (!!settings && (settings.width === 2 || settings.frameRate === 0))
 						const shouldBeEnabled = !isDummyVideoTrack
 						if (enabled !== shouldBeEnabled) {
 							this.toggleRemoteVideoUI((enabled = shouldBeEnabled))
@@ -330,7 +329,7 @@ export default class CallWindow {
 		this.adjustIframeSize()
 	}
 
-	public setVideoCallback(cb) {
+	public setVideoToggleCallback(cb) {
 		this.onToggleVideo = cb
 	}
 
@@ -348,7 +347,7 @@ export default class CallWindow {
 		this.localStreams = []
 	}
 
-	changeVideoFeed({ streamId, enabled, }: { streamId: string, enabled: boolean}) {
+	toggleVideoStream({ streamId, enabled, }: { streamId: string, enabled: boolean}) {
 		if (this.remoteVideo.id === streamId) {
 			this.remoteVideo.enabled = enabled
 		}

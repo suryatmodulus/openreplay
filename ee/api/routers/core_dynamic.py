@@ -402,10 +402,5 @@ def comment_assignment(projectId: int, sessionId: int, issueId: str, data: schem
 @app.post('/{projectId}/dashboard/insights', tags=["insights"])
 def sessions_search(projectId: int, data: schemas.GetInsightsPayloadSchema = schemas.Body(...),
                     context: schemas.CurrentContext = schemas.Depends(schemas.OR_context)):
-    requests_data = sessions_insights.query_requests_by_period(project_id=projectId, start_time=data.startDate,
+    return sessions_insights.fetch_selected(selectedEvents=data.selectedEvents, project_id=projectId, start_time=data.startDate,
                         end_time=data.endDate, time_step=data.timestep)
-    errors_data = sessions_insights.query_most_errors_by_period(project_id=projectId, start_time=data.startDate,
-                        end_time=data.endDate, time_step=data.timestep)
-    cpumemory = sessions_insights.query_cpu_memory_by_period(project_id=projectId, start_time=data.startDate,
-                        end_time=data.endDate, time_step=data.timestep)
-    return {'errors': errors_data, 'resources': cpumemory, 'networks': requests_data}

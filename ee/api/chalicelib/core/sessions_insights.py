@@ -146,6 +146,19 @@ def query_click_rage_by_period(project_id, start_time=(datetime.now()-timedelta(
            pd.DataFrame(raged_increment.items(), columns=['url', 'increment']), df
 
 
+def fetch_selected(selectedEvents, project_id, start_time=(datetime.now()-timedelta(days=1)).strftime('%Y-%m-%d'),
+                        end_time=datetime.now().strftime('%Y-%m-%d'), time_step=3600):
+    output = {}
+    if 'errors' in selectedEvents:
+        output['errors'] = query_most_errors_by_period(project_id, start_time, end_time, time_step)
+    if 'network' in selectedEvents:
+        output['network'] = query_requests_by_period(project_id, start_time, end_time, time_step)
+    if 'rage' in selectedEvents:
+        output['rage'] = query_click_rage_by_period(project_id, start_time, end_time, time_step)
+    if 'resources' in selectedEvents:
+        output['resources'] = query_cpu_memory_by_period(project_id, start_time, end_time, time_step)
+    return output
+
 # def query_click_rage_by_period2(project_id, start_time=(datetime.now()-timedelta(days=1)).strftime('%Y-%m-%d'),
 #                         end_time=datetime.now().strftime('%Y-%m-%d'), time_step=3600):
 #     function, steps = __handle_timestep(time_step)

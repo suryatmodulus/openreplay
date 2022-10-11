@@ -50,6 +50,7 @@ class GetInsightsPayloadSchema(BaseModel):
     startDate: int = Field(TimeUTC.now(delta_days=-1))
     endDate: int = Field(TimeUTC.now())
     timestep: str = Field(...)
+    selectedEvents: List[str] = Field(...)
 
 
 class TrailSearchPayloadSchema(schemas._PaginatedSchema):

@@ -38,6 +38,7 @@ const ErrorInfo = Record({
   tags: [],
   lastHydratedSession: Session(),
   disabled: false,
+  customTags: {},
 }, {
   fromJS: ({ stack, lastHydratedSession, ...other }) => ({
     ...other,

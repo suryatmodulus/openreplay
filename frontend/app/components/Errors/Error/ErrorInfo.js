@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import withSiteIdRouter from 'HOCs/withSiteIdRouter';
-import { errors as errorsRoute, error as errorRoute } from 'App/routes';
-import { NoContent, Loader, IconButton, Icon, Popup, BackLink } from 'UI';
+import { error as errorRoute } from 'App/routes';
+import { NoContent, Loader } from 'UI';
 import { fetch, fetchTrace } from 'Duck/errors';
 import MainSection from './MainSection';
 import SideSection from './SideSection';
@@ -13,7 +13,6 @@ import AnimatedSVG, { ICONS } from 'Shared/AnimatedSVG/AnimatedSVG';
         errorIdInStore: state.getIn(['errors', 'instance']).errorId,
         list: state.getIn(['errors', 'instanceTrace']),
         loading: state.getIn(['errors', 'fetch', 'loading']) || state.getIn(['errors', 'fetchTrace', 'loading']),
-        errorOnFetch: state.getIn(['errors', 'fetch', 'errors']) || state.getIn(['errors', 'fetchTrace', 'errors']),
     }),
     {
         fetch,
@@ -23,7 +22,7 @@ import AnimatedSVG, { ICONS } from 'Shared/AnimatedSVG/AnimatedSVG';
 @withSiteIdRouter
 export default class ErrorInfo extends React.PureComponent {
     ensureInstance() {
-        const { errorId, loading, errorOnFetch } = this.props;
+        const { errorId, loading } = this.props;
         if (!loading && this.props.errorIdInStore !== errorId && errorId != null) {
             this.props.fetch(errorId);
             this.props.fetchTrace(errorId);
@@ -70,43 +69,8 @@ export default class ErrorInfo extends React.PureComponent {
                     </div>
                 }
                 subtext="Please try to find existing one."
-                // animatedIcon="no-results"
                 show={!loading && errorIdInStore == null}
             >
-                {/* <div className="w-9/12 mb-4 flex justify-between">
-					<BackLink	to={ errorsRoute() } label="Back" />
-					<div />
-					<div className="flex items-center">
-						<Popup
-							pinned
-							content="Prev Error"
-						>
-							<IconButton
-								outline
-								compact
-								size="small"
-								icon="prev1"
-								disabled={ prevDisabled }
-								onClick={this.prev}
-							/>
-						</Popup>
-						<div className="mr-3" />
-
-						<Popup
-							pinned
-							content="Next Error"
-						>
-							<IconButton
-								outline
-								compact
-								size="small"
-								icon="next1"
-								disabled={ nextDisabled }
-								onClick={this.next}
-							/>
-						</Popup>
-					</div>
-				</div> */}
                 <div className="flex">
                     <Loader loading={loading} className="w-9/12">
                         <MainSection className="w-9/12" />
